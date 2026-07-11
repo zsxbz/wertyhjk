@@ -1,35 +1,396 @@
-@app.route("/")
-@app.route("/panel")
-def panel():
+@app.route("/api/server_status/<server>")
+def server_status(server):
 
-    servers = []
+    cpu = psutil.cpu_percent()
+    ram = psutil.virtual_memory().percent
 
-    if os.path.exists(ROOT):
+    return jsonify({
+        "cpu": cpu,
+        "ram": ram
+    })
+@app.route("/api/log/<name>")
+def log(name):
 
-        servers = os.listdir(ROOT)
+    file = os.path.join(
+        LOG_DIR,
+        name+".log"
+    )
 
-    return render_template(
-        "index.html",
-        servers=servers
+    if not os.path.exists(file):
+        return ""
+
+
+    with open(
+        file,
+        encoding="utf-8",
+        errors="ignore"
+    ) as f:
+
+        data=f.read()
+
+
+    return data[-10000:]
+@app.route("/panel/<server>/edit/<path:file>",
+methods=["GET","POST"])
+def edit_server_file(server,file):
+
+    path=os.path.join(
+        ROOT,
+        server,
+        file
     )
 
 
+    if request.method=="POST":
 
-<h2>Servers</h2>
+        with open(
+            path,
+            "w",
+            encoding="utf-8"
+        ) as f:
 
-{% for server in servers %}
+            f.write(
+                request.form["text"]
+            )
 
-<div>
-📁 {{server}}
 
-<a href="/{{server}}/index.html">
-開く
+        return "saved"
+
+
+
+    with open(
+        path,
+        encoding="utf-8"
+    ) as f:
+
+        text=f.read()
+
+
+    return """
+<h1>Edit</h1>
+
+<form method="post">
+
+<textarea name="text"
+style="width:800px;height:500px">
+
+%s
+
+</textarea>
+
+<br>
+
+<button>
+Save
+</button>
+
+</form>
+"""%text
+@app.route("/panel/<server>/settings",
+methods=["GET","POST"])
+def settings(server):
+
+    if request.method=="POST":
+
+        data={
+            "autostart":
+            request.form.get("autostart")
+            == "on"
+        }
+
+
+        with open(
+            "data/"+server+".json",
+            "w",
+            encoding="utf-8"
+        ) as f:
+
+            json.dump(
+                data,
+                f
+            )
+
+
+        return "saved"
+
+
+    return """
+<h1>Settings</h1>
+
+<form method="post">
+
+<label>
+<input type="checkbox"
+name="autostart">
+
+Auto Start
+
+</label>
+
+
+<br><br>
+
+<button>
+Save
+</button>
+
+</form>
+"""
+@app.route("/panel/<server>")
+def server_panel(server):
+
+    path = os.path.join(ROOT, server)
+
+    if not os.path.exists(path):
+        return "Server not found"
+
+
+    running = False
+    pid = "-"
+
+    if server in processes:
+
+        p = processes[server]
+
+        if p.poll() is None:
+            running = True
+            pid = p.pid
+
+
+
+    files = ""
+
+    for f in os.listdir(path):
+
+        files += """
+        <div>
+        📄 {0}
+
+        <a href="/panel/{1}/edit/{0}">
+        編集
+        </a>
+
+        </div>
+        """.format(
+            f,
+            server
+        )
+
+
+
+    return """
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+
+<title>{0}</title>
+
+
+<script>
+
+
+function updateStatus(){
+
+
+fetch("/api/server_status/{0}")
+
+.then(r=>r.json())
+
+.then(d=>{{
+
+
+document.getElementById("cpu").innerHTML=d.cpu;
+
+document.getElementById("ram").innerHTML=d.ram;
+
+
+}})
+
+
+}
+
+
+
+function updateLog(){
+
+
+fetch("/api/log/{0}")
+
+.then(r=>r.text())
+
+.then(t=>{{
+
+
+document.getElementById("log").innerHTML=t;
+
+
+}})
+
+
+}
+
+
+setInterval(updateStatus,1000);
+
+setInterval(updateLog,1000);
+
+
+</script>
+
+
+</head>
+
+
+<body>
+
+
+<h1>
+Server : {0}
+</h1>
+
+
+<h3>
+
+Status:
+{1}
+
+</h3>
+
+
+PID:
+{2}
+
+
+<hr>
+
+
+<h2>
+CPU / RAM
+</h2>
+
+
+CPU:
+<span id="cpu">
+0
+</span>
+%
+
+
+<br>
+
+
+RAM:
+<span id="ram">
+0
+</span>
+%
+
+
+
+<hr>
+
+
+<h2>
+Control
+</h2>
+
+
+<a href="/api/start/{0}">
+<button>
+起動
+</button>
 </a>
 
-<a href="/panel/{{server}}">
-管理
+
+<a href="/api/stop/{0}">
+<button>
+停止
+</button>
 </a>
 
-</div>
 
-{% endfor %}
+<a href="/api/restart/{0}">
+<button>
+再起動
+</button>
+</a>
+
+
+<a href="/panel/{0}/delete">
+
+<button>
+削除
+</button>
+
+</a>
+
+
+
+<a href="/panel/{0}/settings">
+
+<button>
+設定
+</button>
+
+</a>
+
+
+
+<hr>
+
+
+<h2>
+Files
+</h2>
+
+
+{3}
+
+
+
+<hr>
+
+
+<h2>
+Realtime Log
+</h2>
+
+
+<pre id="log"
+style="
+width:800px;
+height:300px;
+background:black;
+color:white;
+overflow:auto;
+">
+
+</pre>
+
+
+<br>
+
+
+<a href="/panel">
+戻る
+</a>
+
+
+</body>
+
+</html>
+
+""".format(
+
+server,
+
+"🟢 Running" if running else "🔴 Stopped",
+
+pid,
+
+files
+
+)
