@@ -1,180 +1,60 @@
-<!DOCTYPE html>
-<html>
-<head>
+{% extends "base.html" %}
 
-<meta charset="utf-8">
+{% block title %}Bot Hosting{% endblock %}
 
-<title>MyVPS Panel</title>
+{% block content %}
 
-<style>
+<div class="home">
 
-body{
-    font-family:Arial;
-    margin:20px;
-    background:#202020;
-    color:white;
-}
+    <h1>Bot Hosting Panel</h1>
 
-.box{
-    background:#303030;
-    padding:15px;
-    margin-bottom:15px;
-    border-radius:8px;
-}
+    <p>
+        Discord Bot をブラウザから管理できるホスティングパネルです。
+    </p>
 
-button{
-    margin:3px;
-    padding:8px;
-}
+    <div class="login-box">
 
-#files div{
-    padding:5px;
-}
+        <form action="/dashboard" method="get">
 
-.folder{
-    color:#7ec8ff;
-    cursor:pointer;
-}
+            <input
+                type="text"
+                name="token"
+                placeholder="アクセストークン"
+                required
+            >
 
-.file{
-    color:white;
-    cursor:pointer;
-}
+            <button type="submit">
+                ダッシュボードへ
+            </button>
 
-#drop{
-    border:2px dashed gray;
-    padding:30px;
-    text-align:center;
-}
+        </form>
 
-textarea{
-    width:100%;
-    height:400px;
-    background:#111;
-    color:white;
-}
+    </div>
 
-pre{
-    background:#111;
-    padding:10px;
-    height:250px;
-    overflow:auto;
-}
+    <div class="features">
 
-</style>
+        <div class="card">
+            <h3>📁 ファイル管理</h3>
+            <p>ブラウザから編集できます。</p>
+        </div>
 
-</head>
+        <div class="card">
+            <h3>▶ Bot起動</h3>
+            <p>起動・停止・再起動に対応。</p>
+        </div>
 
+        <div class="card">
+            <h3>📜 ログ</h3>
+            <p>実行ログを確認できます。</p>
+        </div>
 
-<body>
+        <div class="card">
+            <h3>📦 ZIP</h3>
+            <p>ダウンロード・アップロード対応。</p>
+        </div>
 
-
-<h1>My VPS Panel</h1>
-
-
-<div class="box">
-
-CPU:
-<span id="cpu">0</span>%
-
-
-<br>
-
-RAM:
-<span id="ram">0</span>%
-
+    </div>
 
 </div>
 
-
-
-<div class="box">
-
-<h2>Servers</h2>
-
-<div id="servers">
-
-</div>
-
-
-</div>
-
-
-
-<div class="box">
-
-
-<h2>Files</h2>
-
-現在:
-<span id="path"></span>
-
-
-<br><br>
-
-
-<button onclick="back()">
-戻る
-</button>
-
-
-<div id="files"></div>
-
-
-
-<div id="drop">
-
-ここにファイルをドラッグ&ドロップ
-
-</div>
-
-
-</div>
-
-
-
-<div class="box">
-
-
-<h2>Editor</h2>
-
-
-<textarea id="editor"></textarea>
-
-<br>
-
-<button onclick="save()">
-保存
-</button>
-
-
-</div>
-
-
-
-
-<div class="box">
-
-
-<h2>Log</h2>
-
-
-<select id="logserver"
-onchange="loadLog()">
-
-</select>
-
-
-<pre id="log"></pre>
-
-
-</div>
-
-
-<script src="/static/script.js"></script>
-
-
-
-</body>
-
-</html>
+{% endblock %}
