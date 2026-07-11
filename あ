@@ -1,95 +1,35 @@
-# =====================
-# サーバー作成
-# =====================
+@app.route("/")
+@app.route("/panel")
+def panel():
 
-@app.route("/create", methods=["GET", "POST"])
-def create_server():
+    servers = []
 
-    if request.method == "POST":
+    if os.path.exists(ROOT):
 
-        name = request.form.get("name")
+        servers = os.listdir(ROOT)
 
-        if not name:
-            return "Server name required"
-
-
-        # 不正な名前を防止
-        if "/" in name or "\\" in name or ".." in name:
-            return "Invalid name"
+    return render_template(
+        "index.html",
+        servers=servers
+    )
 
 
-        server_path = os.path.join(
-            ROOT,
-            name
-        )
 
+<h2>Servers</h2>
 
-        # 既に存在
-        if os.path.exists(server_path):
-            return "Already exists"
+{% for server in servers %}
 
+<div>
+📁 {{server}}
 
-        # フォルダ作成
-        os.makedirs(server_path)
+<a href="/{{server}}/index.html">
+開く
+</a>
 
+<a href="/panel/{{server}}">
+管理
+</a>
 
-        # index.html作成
-        with open(
-            os.path.join(server_path, "index.html"),
-            "w",
-            encoding="utf-8"
-        ) as f:
+</div>
 
-            f.write(
-                "<h1>"+name+"</h1>"
-            )
-
-
-        # main.py作成
-        with open(
-            os.path.join(server_path, "main.py"),
-            "w",
-            encoding="utf-8"
-        ) as f:
-
-            f.write(
-                'print("Server started")'
-            )
-
-
-        return """
-        <h2>Created!</h2>
-        <p>Server: %s</p>
-        <a href="/panel">Panel</a>
-        """ % name
-
-
-    # GETの場合
-    return """
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <meta charset="utf-8">
-    <title>Create Server</title>
-    </head>
-
-    <body>
-
-    <h1>Create Server</h1>
-
-    <form method="post" action="/create">
-
-        <input
-        type="text"
-        name="name"
-        placeholder="Server name">
-
-        <button type="submit">
-        Create
-        </button>
-
-    </form>
-
-    </body>
-    </html>
-    """
+{% endfor %}
