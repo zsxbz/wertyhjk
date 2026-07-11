@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="dashboard">
+
+    <aside class="sidebar">
+
+        <h2>ファイル</h2>
+
+        <div id="fileTree">
+            {% for item in tree %}
+                <div class="tree-item"
+                     data-path="{{ item.path }}">
+                    {{ item.name }}
+                </div>
+            {% endfor %}
+        </div>
+
+    </aside>
+
+    <section class="editor-area">
+
+        <div class="toolbar">
+
+            <button id="saveBtn">
+                💾 保存
+            </button>
+
+            <button id="startBtn">
+                ▶ 起動
+            </button>
+
+            <button id="stopBtn">
+                ■ 停止
+            </button>
+
+            <button id="restartBtn">
+                ↻ 再起動
+            </button>
+
+            <button id="downloadBtn">
+                ZIP
+            </button>
+
+        </div>
+
+        <textarea
+            id="editor"
+            spellcheck="false"
+        ></textarea>
+
+        <div id="statusBar">
+
+            <span>
+                User :
+                {{ user_key }}
+            </span>
+
+            <span id="runStatus">
+                {% if running %}
+                    🟢 Running
+                {% else %}
+                    🔴 Stopped
+                {% endif %}
+            </span>
+
+        </div>
+
+        <h3>ログ</h3>
+
+        <pre id="logArea"></pre>
+
+    </section>
+
+</div>
+
+<script>
+
+const token = "{{ token }}";
+
+</script>
+
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+
+{% endblock %}
