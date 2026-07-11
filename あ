@@ -1,0 +1,75 @@
+# =====================
+# サーバー作成
+# =====================
+
+@app.route("/create", methods=["GET", "POST"])
+def create_server():
+
+    if request.method == "POST":
+
+        name = request.form["name"]
+
+        # 危険文字対策
+        if "/" in name or "\\" in name:
+            return "Invalid name"
+
+
+        path = os.path.join(
+            ROOT,
+            name
+        )
+
+
+        if os.path.exists(path):
+            return "Already exists"
+
+
+        os.makedirs(path)
+
+
+        # 初期index.html作成
+        with open(
+            os.path.join(path, "index.html"),
+            "w",
+            encoding="utf-8"
+        ) as f:
+
+            f.write(
+                "<h1>"+name+"</h1>"
+            )
+
+
+        # Pythonサーバー用
+        with open(
+            os.path.join(path, "main.py"),
+            "w",
+            encoding="utf-8"
+        ) as f:
+
+            f.write(
+"""print("Server started")
+"""
+            )
+
+
+        return """
+        Created<br>
+        <a href="/panel">Panel</a>
+        """
+
+
+    return """
+    <h1>Create Server</h1>
+
+    <form method="post">
+
+    Server Name:<br>
+
+    <input name="name">
+
+    <button>
+    Create
+    </button>
+
+    </form>
+    """
