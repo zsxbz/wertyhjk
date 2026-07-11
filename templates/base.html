@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Bot Hosting{% endblock %}</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+<header class="topbar">
+    <div class="logo">
+        🤖 Bot Hosting
+    </div>
+
+    <nav>
+        <a href="/">ホーム</a>
+    </nav>
+</header>
+
+<main class="container">
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+    Bot Hosting Panel
+</footer>
+
+{% block scripts %}{% endblock %}
+
+</body>
+</html>
