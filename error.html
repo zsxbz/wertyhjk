@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}エラー{% endblock %}
+
+{% block content %}
+
+<div class="error-page">
+
+    <h1>{{ code if code else "Error" }}</h1>
+
+    <p>
+        {{ message if message else "エラーが発生しました。" }}
+    </p>
+
+    <br>
+
+    <a href="/">
+        ← トップへ戻る
+    </a>
+
+</div>
+
+{% endblock %}
