@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="utf-8">
+
+<title>MyVPS Panel</title>
+
+<style>
+
+body{
+    font-family:Arial;
+    margin:20px;
+    background:#202020;
+    color:white;
+}
+
+.box{
+    background:#303030;
+    padding:15px;
+    margin-bottom:15px;
+    border-radius:8px;
+}
+
+button{
+    margin:3px;
+    padding:8px;
+}
+
+#files div{
+    padding:5px;
+}
+
+.folder{
+    color:#7ec8ff;
+    cursor:pointer;
+}
+
+.file{
+    color:white;
+    cursor:pointer;
+}
+
+#drop{
+    border:2px dashed gray;
+    padding:30px;
+    text-align:center;
+}
+
+textarea{
+    width:100%;
+    height:400px;
+    background:#111;
+    color:white;
+}
+
+pre{
+    background:#111;
+    padding:10px;
+    height:250px;
+    overflow:auto;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<h1>My VPS Panel</h1>
+
+
+<div class="box">
+
+CPU:
+<span id="cpu">0</span>%
+
+
+<br>
+
+RAM:
+<span id="ram">0</span>%
+
+
+</div>
+
+
+
+<div class="box">
+
+<h2>Servers</h2>
+
+<div id="servers">
+
+</div>
+
+
+</div>
+
+
+
+<div class="box">
+
+
+<h2>Files</h2>
+
+現在:
+<span id="path"></span>
+
+
+<br><br>
+
+
+<button onclick="back()">
+戻る
+</button>
+
+
+<div id="files"></div>
+
+
+
+<div id="drop">
+
+ここにファイルをドラッグ&ドロップ
+
+</div>
+
+
+</div>
+
+
+
+<div class="box">
+
+
+<h2>Editor</h2>
+
+
+<textarea id="editor"></textarea>
+
+<br>
+
+<button onclick="save()">
+保存
+</button>
+
+
+</div>
+
+
+
+
+<div class="box">
+
+
+<h2>Log</h2>
+
+
+<select id="logserver"
+onchange="loadLog()">
+
+</select>
+
+
+<pre id="log"></pre>
+
+
+</div>
+
+
+
+
+<script>
+
+
+let current="";
+
+let editFile="";
+
+
+
+// CPU RAM
+
+setInterval(()=>{
+
+fetch("/api/status")
+.then(r=>r.json())
+.then(d=>{
+
+cpu.innerHTML=d.cpu;
+
+ram.innerHTML=d.ram;
+
+});
+
+},1000);
+
+
+
+
+
+// ファイル表示
+
+function loadFiles(){
+
+
+fetch(
+"/api/files?path="+current
+)
+
+.then(r=>r.json())
+
+.then(data=>{
+
+
+files.innerHTML="";
+
+
+path.innerHTML=current || "/";
+
+
+
+data.forEach(f=>{
+
+
+let div=document.createElement("div");
+
+
+
+if(f.folder){
+
+
+div.className="folder";
+
+div.innerHTML="📁 "+f.name;
+
+
+div.onclick=()=>{
+
+
+if(current)
+current+="/"+f.name;
+
+else
+current=f.name;
+
+
+loadFiles();
+
+};
+
+
+
+}else{
+
+
+div.className="file";
+
+div.innerHTML="📄 "+f.name;
+
+
+div.onclick=()=>{
+
+editFile=current+"/"+f.name;
+
+readFile();
+
+};
+
+
+
+}
+
+
+
+files.appendChild(div);
+
+
+
+});
+
+
+
+});
+
+
+}
+
+
+
+function back(){
+
+
+let p=current.split("/");
+
+p.pop();
+
+current=p.join("/");
+
+
+loadFiles();
+
+
+}
+
+
+
+// 編集
+
+function readFile(){
+
+
+fetch(
+"/api/read?path="+editFile
+)
+
+.then(r=>r.text())
+
+.then(t=>{
+
+
+editor.value=t;
+
+
+});
+
+
+}
+
+
+
+function save(){
+
+
+fetch("/api/edit",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+path:editFile,
+
+text:editor.value
+
+})
+
+
+});
+
+
+}
+
+
+
+
+
+// ドロップ
+
+drop.ondragover=e=>{
+
+e.preventDefault();
+
+};
+
+
+drop.ondrop=e=>{
+
+
+e.preventDefault();
+
+
+let f=e.dataTransfer.files[0];
+
+
+let form=new FormData();
+
+
+form.append(
+"file",
+f
+);
+
+
+form.append(
+"path",
+current
+);
+
+
+
+fetch(
+"/api/upload",
+{
+
+method:"POST",
+
+body:form
+
+}
+
+)
+.then(()=>loadFiles());
+
+
+};
+
+
+
+
+
+// ログ
+
+function loadLog(){
+
+
+let name=logserver.value;
+
+
+fetch(
+"/api/log/"+name
+)
+
+.then(r=>r.text())
+
+.then(t=>{
+
+log.innerHTML=t;
+
+
+});
+
+
+}
+
+
+setInterval(loadLog,1000);
+
+
+
+
+
+loadFiles();
+
+
+</script>
+
+
+</body>
+
+</html>
