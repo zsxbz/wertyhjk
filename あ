@@ -7,29 +7,35 @@ def create_server():
 
     if request.method == "POST":
 
-        name = request.form["name"]
+        name = request.form.get("name")
 
-        # 危険文字対策
-        if "/" in name or "\\" in name:
+        if not name:
+            return "Server name required"
+
+
+        # 不正な名前を防止
+        if "/" in name or "\\" in name or ".." in name:
             return "Invalid name"
 
 
-        path = os.path.join(
+        server_path = os.path.join(
             ROOT,
             name
         )
 
 
-        if os.path.exists(path):
+        # 既に存在
+        if os.path.exists(server_path):
             return "Already exists"
 
 
-        os.makedirs(path)
+        # フォルダ作成
+        os.makedirs(server_path)
 
 
-        # 初期index.html作成
+        # index.html作成
         with open(
-            os.path.join(path, "index.html"),
+            os.path.join(server_path, "index.html"),
             "w",
             encoding="utf-8"
         ) as f:
@@ -39,37 +45,51 @@ def create_server():
             )
 
 
-        # Pythonサーバー用
+        # main.py作成
         with open(
-            os.path.join(path, "main.py"),
+            os.path.join(server_path, "main.py"),
             "w",
             encoding="utf-8"
         ) as f:
 
             f.write(
-"""print("Server started")
-"""
+                'print("Server started")'
             )
 
 
         return """
-        Created<br>
+        <h2>Created!</h2>
+        <p>Server: %s</p>
         <a href="/panel">Panel</a>
-        """
+        """ % name
 
 
+    # GETの場合
     return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <meta charset="utf-8">
+    <title>Create Server</title>
+    </head>
+
+    <body>
+
     <h1>Create Server</h1>
 
-    <form method="post">
+    <form method="post" action="/create">
 
-    Server Name:<br>
+        <input
+        type="text"
+        name="name"
+        placeholder="Server name">
 
-    <input name="name">
-
-    <button>
-    Create
-    </button>
+        <button type="submit">
+        Create
+        </button>
 
     </form>
+
+    </body>
+    </html>
     """
