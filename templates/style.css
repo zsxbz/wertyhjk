@@ -1,0 +1,231 @@
+/* =========================
+   全体
+========================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial, Helvetica, sans-serif;
+    background:#202225;
+    color:white;
+}
+
+a{
+    color:#6cb6ff;
+    text-decoration:none;
+}
+
+button{
+    cursor:pointer;
+}
+
+/* =========================
+   ヘッダー
+========================= */
+
+.topbar{
+    height:60px;
+    background:#2b2d31;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:0 20px;
+
+    border-bottom:1px solid #444;
+}
+
+.logo{
+    font-size:22px;
+    font-weight:bold;
+}
+
+.container{
+    padding:20px;
+}
+
+/* =========================
+   ホーム
+========================= */
+
+.home{
+    max-width:900px;
+    margin:auto;
+}
+
+.home h1{
+    margin-bottom:20px;
+}
+
+.login-box{
+    margin:30px 0;
+}
+
+.login-box input{
+    width:300px;
+    padding:10px;
+}
+
+.login-box button{
+    padding:10px 18px;
+}
+
+/* =========================
+   カード
+========================= */
+
+.features{
+    display:grid;
+
+    grid-template-columns:
+        repeat(auto-fit,minmax(200px,1fr));
+
+    gap:20px;
+}
+
+.card{
+    background:#2b2d31;
+
+    padding:20px;
+
+    border-radius:10px;
+
+    border:1px solid #444;
+}
+
+/* =========================
+   Dashboard
+========================= */
+
+.dashboard{
+
+    display:grid;
+
+    grid-template-columns:
+        260px 1fr;
+
+    gap:20px;
+
+    height:calc(100vh - 120px);
+}
+
+.sidebar{
+
+    background:#2b2d31;
+
+    padding:15px;
+
+    overflow:auto;
+
+    border-radius:10px;
+}
+
+.tree-item{
+
+    padding:8px;
+
+    border-radius:6px;
+
+    cursor:pointer;
+}
+
+.tree-item:hover{
+
+    background:#3b3d42;
+}
+
+.editor-area{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+}
+
+.toolbar{
+
+    display:flex;
+
+    gap:10px;
+
+    flex-wrap:wrap;
+}
+
+.toolbar button{
+
+    padding:10px 15px;
+
+    border:none;
+
+    border-radius:6px;
+}
+
+#editor{
+
+    flex:1;
+
+    resize:none;
+
+    width:100%;
+
+    background:#1e1e1e;
+
+    color:white;
+
+    border:1px solid #444;
+
+    padding:15px;
+
+    font-family:Consolas, monospace;
+
+    font-size:15px;
+}
+
+#statusBar{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    padding:10px;
+
+    background:#2b2d31;
+
+    border-radius:8px;
+}
+
+#logArea{
+
+    height:220px;
+
+    overflow:auto;
+
+    background:black;
+
+    color:#00ff66;
+
+    padding:10px;
+
+    border-radius:8px;
+
+    white-space:pre-wrap;
+}
+
+/* =========================
+   Footer
+========================= */
+
+.footer{
+
+    text-align:center;
+
+    padding:20px;
+
+    color:#888;
+}
